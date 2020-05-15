@@ -83,7 +83,7 @@ class Page extends SiteTree implements ISearchIndexable // you need to implement
     // add interface function, it should return the string you want to add to your search index.
     public function forSearchIndex()
     {
-	     if ($this->isPageWithSections()) {
+	 if ($this->isPageWithSections()) {
             $oldThemes = SSViewer::get_themes();
             SSViewer::set_themes(
                 Config::inst()->get(SSViewer::class, 'themes')
