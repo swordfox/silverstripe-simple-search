@@ -17,13 +17,19 @@ class SearchResultsPageController extends PageController
         $searchTerm = $this->request->getVar(self::URLPARAM_SEARCH);
 
         if (!$searchTerm) {
-            return $this;
+            return $this->customise([
+                'SearchTerm' => null,
+                'SearchResultsCount' => 0
+            ]);
         }
+
+        $results = SearchIndexEntry::search($searchTerm);
 
         return $this->customise([
             'SearchTerm' => $searchTerm,
+            'SearchResultsCount' => $results->exists() ? $results->count() : 0,
             'SearchResults' => PaginatedList::create(
-                SearchIndexEntry::search($searchTerm),
+                $results,
                 $this->request
             )->setPageLength($this->config()->pagination_limit)
         ]);

@@ -29,6 +29,18 @@ class BuildIndexTask extends BuildTask
             ->setFrom(SearchIndexEntry::singleton()->config()->table_name)
             ->execute();
 
+        // remove localised table if exists
+        try {
+            SQLDelete::create()
+                ->setFrom(
+                    SearchIndexEntry::singleton()->config()->table_name .
+                        '_Localised'
+                )
+                ->execute();
+        } catch (\Throwable $th) {
+            $this->outputText($th->getMessage());
+        }
+
         $classes = array_values(
             ClassInfo::implementorsOf(ISearchIndexable::class)
         );
@@ -68,6 +80,8 @@ class BuildIndexTask extends BuildTask
                     return $self->runOnRecords($records = $className::get());
                 });
             }
+        } else {
+            $count = $this->runOnRecords($records = $className::get());
         }
 
         $this->outputText("-> Indexing done [{$count}]");

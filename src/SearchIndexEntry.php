@@ -12,10 +12,8 @@ class SearchIndexEntry extends DataObject
     const TYPE_PAGE = 'PAGE';
     const TYPE_FILE = 'FILE';
 
-    private static $table_name = 'Arillo_Search_SearchIndexEntry';
+    private static $table_name = 'Arillo_SimpleSearch_SearchIndexEntry';
     private static $default_sort = 'LastEdited DESC';
-
-    // private static $extensions = [FluentExtension::class];
 
     private static $db = [
         'Title' => 'Text',
@@ -24,8 +22,6 @@ class SearchIndexEntry extends DataObject
         'SearchableText' => 'Text',
         'Type' => 'Varchar(255)'
     ];
-
-    // private static $translate = ['Title', 'SearchableText'];
 
     private static $indexes = [
         'SearchFields' => [

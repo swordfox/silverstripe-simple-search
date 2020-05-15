@@ -1,0 +1,6 @@
+en:
+  Arillo\SimpleSearch\SearchResultsPage:
+    SearchResults: '{count} results'
+    NoResults: Please check spelling or try another term.
+  Arillo\SimpleSearch\SearchForm:
+    SearchTerm: Enter search term

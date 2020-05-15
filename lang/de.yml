@@ -1,0 +1,6 @@
+de:
+  Arillo\SimpleSearch\SearchResultsPage:
+    SearchResults: '{count} Resultate'
+    NoResults: Bitte überprüfen Sie die Schreibweise oder versuchen Sie es erneut mit einem anderen Begriff.
+  Arillo\SimpleSearch\SearchForm:
+    SearchTerm: Suchbegriff eingeben
