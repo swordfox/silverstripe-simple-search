@@ -1,0 +1,30 @@
+{
+  "name": "arillo/silverstripe-simple-search",
+  "description": "Simple search Silverstripe",
+  "type": "silverstripe-vendormodule",
+  "keywords": [
+    "silverstripe",
+    "search"
+  ],
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Sebastian Fischer (@bumbus)",
+      "email": "sf@arillo.ch"
+    }
+  ],
+  "support": {
+    "issues": "http://github.com/arillo/silverstripe-simple-search/issues"
+  },
+  "require": {
+    "silverstripe/framework": "^4"
+  },
+  "extra": {
+    "installer-name": "simple-search"
+  },
+  "autoload": {
+    "psr-4": {
+      "Arillo\\SimpleSearch\\": "src/"
+    }
+  }
+}
