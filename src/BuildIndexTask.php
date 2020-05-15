@@ -18,7 +18,6 @@ use TractorCow\Fluent\Model\Locale;
  */
 class BuildIndexTask extends BuildTask
 {
-    protected $indexedIds = [];
     protected $title = '(Re-)build search index';
     protected $description = 'Only needs to be called once on production, or to re-build the manifest';
 

@@ -39,6 +39,13 @@ class Page extends SiteTree implements ISearchIndexable // you need to implement
 
 ```
 
+### (Re-)Build the search index
+
+```
+php vendor/silverstripe/framework/cli-script.php dev/tasks/Arillo-SimpleSearch-BuildIndexTask
+```
+
+
 ### Integrate with Fluent
 
 Add `search.yml` to your config:
