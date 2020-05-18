@@ -81,11 +81,11 @@ class SearchIndexEntry extends DataObject
         }
 
         if (!$string) {
-            static::unindex_record($record);
+            self::unindex_record($record);
             return false;
         }
 
-        $index = static::get()
+        $index = self::get()
             ->filter([
                 'RecordClass' => $record->ClassName,
                 'RecordID' => $record->ID
@@ -108,7 +108,7 @@ class SearchIndexEntry extends DataObject
             return $index;
         }
 
-        $index = static::create();
+        $index = self::create();
         $index->update([
             'Created' => $record->Created,
             'LastEdited' => $record->LastEdited,
@@ -129,7 +129,7 @@ class SearchIndexEntry extends DataObject
      */
     public static function unindex_record(DataObject $record)
     {
-        $index = static::get()
+        $index = self::get()
             ->filter([
                 'RecordClass' => $record->ClassName,
                 'RecordID' => $record->ID
@@ -156,7 +156,7 @@ class SearchIndexEntry extends DataObject
         $query = explode(' ', $query);
         $query = array_map('strtolower', $query);
 
-        $inst = static::singleton();
+        $inst = self::singleton();
         $filterConfig = $inst->config()->filters;
         $filters = [];
 
