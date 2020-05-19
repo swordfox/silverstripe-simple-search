@@ -12,7 +12,7 @@ class SearchResultsPageController extends PageController
 
     private static $allowed_actions = ['SearchForm'];
 
-    protected function index()
+    public function index()
     {
         $searchTerm = $this->request->getVar(self::URLPARAM_SEARCH);
 
