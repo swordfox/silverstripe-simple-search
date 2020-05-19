@@ -3,6 +3,7 @@ namespace Arillo\SimpleSearch;
 
 use PageController;
 use SilverStripe\ORM\PaginatedList;
+use SilverStripe\Control\HTTPRequest;
 
 class SearchResultsPageController extends PageController
 {
@@ -12,7 +13,7 @@ class SearchResultsPageController extends PageController
 
     private static $allowed_actions = ['SearchForm'];
 
-    public function index()
+    public function index(HTTPRequest $request)
     {
         $searchTerm = $this->request->getVar(self::URLPARAM_SEARCH);
 
