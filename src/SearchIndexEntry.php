@@ -5,6 +5,7 @@ use Page;
 use SilverStripe\Core\ClassInfo;
 use SilverStripe\ORM\DataObject;
 use TractorCow\Fluent\Extension\FluentExtension;
+use SilverStripe\Versioned\Versioned;
 
 class SearchIndexEntry extends DataObject
 {
@@ -68,8 +69,15 @@ class SearchIndexEntry extends DataObject
         string $title = null,
         string $type = self::TYPE_PAGE
     ) {
-        $values = [];
         if ($record instanceof Page && !$record->ShowInSearch) {
+            self::unindex_record($record);
+            return false;
+        }
+
+        if (
+            $record->hasExtension(Versioned::class) &&
+            !$record->isPublished()
+        ) {
             self::unindex_record($record);
             return false;
         }
