@@ -21,25 +21,28 @@ class SearchIndexEntry extends DataObject
         'RecordClass' => 'Varchar(255)',
         'RecordID' => 'Int',
         'SearchableText' => 'Text',
-        'Type' => 'Varchar(255)'
+        'Type' => 'Varchar(255)',
     ];
 
     private static $indexes = [
         'SearchFields' => [
             'type' => 'fulltext',
-            'columns' => ['SearchableText']
-        ]
+            'columns' => ['SearchableText'],
+        ],
     ];
 
     private static $filters = [
         'Title:PartialMatch',
-        'SearchableText:PartialMatch'
+        'SearchableText:PartialMatch',
     ];
 
     public static function rip_tags($string)
     {
-        // remove form tags and their content
+        // remove certain tags and their content
         $string = preg_replace('/<form.*?<\/form>/is', ' ', $string);
+        $string = preg_replace('/<style.*?<\/style>/is', ' ', $string);
+        $string = preg_replace('/<script.*?<\/script>/is', ' ', $string);
+        $string = preg_replace('/<template.*?<\/template>/is', ' ', $string);
 
         // remove html tags
         $string = preg_replace('/<[^>]*>/', ' ', $string);
@@ -96,7 +99,7 @@ class SearchIndexEntry extends DataObject
         $index = self::get()
             ->filter([
                 'RecordClass' => $record->ClassName,
-                'RecordID' => $record->ID
+                'RecordID' => $record->ID,
             ])
             ->first();
 
@@ -109,7 +112,7 @@ class SearchIndexEntry extends DataObject
                 'Created' => $record->Created,
                 'LastEdited' => $record->LastEdited,
                 'Title' => $title,
-                'SearchableText' => $string
+                'SearchableText' => $string,
             ]);
 
             $index->write();
@@ -124,7 +127,7 @@ class SearchIndexEntry extends DataObject
             'RecordClass' => $record->ClassName,
             'RecordID' => $record->ID,
             'SearchableText' => $string,
-            'Type' => $type
+            'Type' => $type,
         ]);
 
         $index->write();
@@ -140,7 +143,7 @@ class SearchIndexEntry extends DataObject
         $index = self::get()
             ->filter([
                 'RecordClass' => $record->ClassName,
-                'RecordID' => $record->ID
+                'RecordID' => $record->ID,
             ])
             ->first();
 
