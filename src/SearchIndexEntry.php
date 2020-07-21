@@ -115,6 +115,7 @@ class SearchIndexEntry extends DataObject
                 'SearchableText' => $string,
             ]);
 
+            $index->extend('onIndexRecord', $index, $record);
             $index->write();
             return $index;
         }
@@ -130,6 +131,7 @@ class SearchIndexEntry extends DataObject
             'Type' => $type,
         ]);
 
+        $index->extend('onIndexRecord', $index, $record);
         $index->write();
         return $index;
     }
