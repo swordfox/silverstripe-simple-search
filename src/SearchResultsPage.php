@@ -2,9 +2,7 @@
 namespace Arillo\SimpleSearch;
 
 use Page;
-// use SilverStripe\CMS\Model\SiteTree;
 
-// class SearchResultsPage extends SiteTree
 class SearchResultsPage extends Page
 {
     private static $singular_name = 'Search';

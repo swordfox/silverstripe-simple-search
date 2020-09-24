@@ -16,6 +16,7 @@ class SearchForm extends Form
                 SearchResultsPageController::URLPARAM_SEARCH,
                 null
             )
+                ->setTitle(null)
                 ->setAttribute(
                     'placeholder',
                     _t(__CLASS__ . '.SearchTerm', 'Enter search term')
