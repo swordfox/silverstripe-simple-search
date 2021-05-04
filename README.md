@@ -8,7 +8,7 @@ SilverStripe CMS ^4.0
 
 ### Simple page example
 
-```
+```php
 <?php
 use SilverStripe\CMS\Model\SiteTree;
 use Arillo\SimpleSearch\ISearchIndexable;
@@ -61,7 +61,17 @@ Arillo\SimpleSearch\SearchIndexEntry:
 
 ### Integrate with arillo/elements
 
+Add the extension, so update / publish elements will trigger an reindex of the holder page.
+
+```yaml
+Arillo\Elements\ElementBase:
+  extensions:
+    - Arillo\SimpleSearch\ElementDataExtension
 ```
+
+Implement `ISearchIndexable` e.g. like this:
+
+```php
 <?php
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\View\SSViewer;
