@@ -15,4 +15,14 @@ class ElementDataExtension extends DataExtension
             SearchIndexEntry::index_record($holder);
         }
     }
+
+    public function onAfterPublish($original)
+    {
+        if (
+            $this->owner->hasMethod('getHolderPage') &&
+            ($holder = $this->owner->getHolderPage())
+        ) {
+            SearchIndexEntry::index_record($holder);
+        }
+    }
 }
