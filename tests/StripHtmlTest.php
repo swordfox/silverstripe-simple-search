@@ -15,5 +15,6 @@ class StripHtmlTest extends SapphireTest
         $this->assertTrue(strpos($ripped, 'INSIDE_STYLE_TAG') === false);
         $this->assertTrue(strpos($ripped, 'INSIDE_TEMPLATE_TAG') === false);
         $this->assertTrue(strpos($ripped, 'INSIDE_SCRIPT_TAG') === false);
+        $this->assertTrue(strpos($ripped, 'INSIDE_SEARCH_EXCLUDE') === false);
     }
 }

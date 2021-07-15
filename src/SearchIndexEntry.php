@@ -38,6 +38,13 @@ class SearchIndexEntry extends DataObject
 
     public static function rip_tags($string)
     {
+        // remove contents between search exclude comments
+        $string = preg_replace(
+            '/<!--<SearchExclude>-->.*<\/SearchExclude>-->/is',
+            ' ',
+            $string
+        );
+
         // remove certain tags and their content
         $string = preg_replace('/<form.*?<\/form>/is', ' ', $string);
         $string = preg_replace('/<style.*?<\/style>/is', ' ', $string);

@@ -131,3 +131,14 @@ class Page extends SiteTree implements ISearchIndexable // you need to implement
     }
 }
 ```
+
+### Content stripping
+
+When using `SearchIndexEntry::sanitize_string` html tags will be removed from the text.
+It is possible to mark certain parts of the html to also be removed. This can be handy if you want to strip out navigation elements or breadcrumbs. To accomplish this all content between `<!--<SearchExclude>-->` and `<!--</SearchExclude>-->` will be ereased:
+
+```html
+<!--<SearchExclude>-->
+    Contents between this comments will be stripped
+<!--</SearchExclude>-->
+```
