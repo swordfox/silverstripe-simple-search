@@ -53,6 +53,8 @@ class SearchIndexEntry extends DataObject
 
         // remove html tags
         $string = preg_replace('/<[^>]*>/', ' ', $string);
+        // remove html comments
+        $string = preg_replace('/<\!--.*?-->/s', '', $string);
 
         // remove control characters
         $string = str_replace("\r", '', $string);
