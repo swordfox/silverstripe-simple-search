@@ -6,6 +6,7 @@ use SilverStripe\Core\ClassInfo;
 use SilverStripe\ORM\DataObject;
 use TractorCow\Fluent\Extension\FluentExtension;
 use SilverStripe\Versioned\Versioned;
+use SilverStripe\ORM\ArrayList;
 
 class SearchIndexEntry extends DataObject
 {
@@ -186,8 +187,19 @@ class SearchIndexEntry extends DataObject
             $filters[$key] = $query;
         }
 
-        $records = SearchIndexEntry::get()->filterAny($filters);
-        return $records->sort($sort ?? $inst->default_sort);
+        $records = SearchIndexEntry::get()
+            ->filterAny($filters)
+            ->sort($sort ?? $inst->default_sort);
+
+        $recordsCanView = new ArrayList([]);
+
+        foreach($records as $record){
+            if($record->getRecord()->canView()) {
+                $recordsCanView->push($record);
+            }
+        }
+
+        return $recordsCanView;
     }
 
     public function getRecord()
