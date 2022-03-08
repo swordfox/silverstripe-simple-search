@@ -7,6 +7,9 @@ use SilverStripe\ORM\DataObject;
 use TractorCow\Fluent\Extension\FluentExtension;
 use SilverStripe\Versioned\Versioned;
 use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\Connect\MySQLSchemaManager;
+use SilverStripe\ORM\Queries\SQLSelect;
+use SilverStripe\Core\Convert;
 
 class SearchIndexEntry extends DataObject
 {
@@ -14,7 +17,7 @@ class SearchIndexEntry extends DataObject
     const TYPE_PAGE = 'PAGE';
     const TYPE_FILE = 'FILE';
 
-    private static $table_name = 'Arillo_SimpleSearch_SearchIndexEntry';
+    private static $table_name = 'SearchIndexEntry';
     private static $default_sort = 'LastEdited DESC';
 
     private static $db = [
@@ -28,13 +31,17 @@ class SearchIndexEntry extends DataObject
     private static $indexes = [
         'SearchFields' => [
             'type' => 'fulltext',
-            'columns' => ['SearchableText'],
+            'columns' => ['Title','SearchableText'],
         ],
     ];
 
     private static $filters = [
         'Title:PartialMatch',
         'SearchableText:PartialMatch',
+    ];
+
+    private static $create_table_options = [
+        MySQLSchemaManager::ID => 'ENGINE=MyISAM',
     ];
 
     public static function rip_tags($string)
@@ -73,7 +80,7 @@ class SearchIndexEntry extends DataObject
     }
 
     /**
-     * @param DataObject $record
+     * @param  DataObject $record
      * @return bool|SearchIndexEntry
      */
     public static function index_record(
@@ -87,9 +94,8 @@ class SearchIndexEntry extends DataObject
             return false;
         }
 
-        if (
-            $record->hasExtension(Versioned::class) &&
-            !$record->isPublished()
+        if ($record->hasExtension(Versioned::class)
+            && !$record->isPublished()
         ) {
             self::unindex_record($record);
             return false;
@@ -107,10 +113,12 @@ class SearchIndexEntry extends DataObject
         }
 
         $index = self::get()
-            ->filter([
+            ->filter(
+                [
                 'RecordClass' => $record->ClassName,
                 'RecordID' => $record->ID,
-            ])
+                ]
+            )
             ->first();
 
         if ($index) {
@@ -118,12 +126,14 @@ class SearchIndexEntry extends DataObject
                 return $index;
             }
 
-            $index->update([
+            $index->update(
+                [
                 'Created' => $record->Created,
                 'LastEdited' => $record->LastEdited,
                 'Title' => $title,
                 'SearchableText' => $string,
-            ]);
+                ]
+            );
 
             $index->extend('onIndexRecord', $index, $record);
             $index->write();
@@ -131,7 +141,8 @@ class SearchIndexEntry extends DataObject
         }
 
         $index = self::create();
-        $index->update([
+        $index->update(
+            [
             'Created' => $record->Created,
             'LastEdited' => $record->LastEdited,
             'Title' => $title,
@@ -139,7 +150,8 @@ class SearchIndexEntry extends DataObject
             'RecordID' => $record->ID,
             'SearchableText' => $string,
             'Type' => $type,
-        ]);
+            ]
+        );
 
         $index->extend('onIndexRecord', $index, $record);
         $index->write();
@@ -147,16 +159,18 @@ class SearchIndexEntry extends DataObject
     }
 
     /**
-     * @param DataObject $record
+     * @param  DataObject $record
      * @return DataObject
      */
     public static function unindex_record(DataObject $record)
     {
         $index = self::get()
-            ->filter([
+            ->filter(
+                [
                 'RecordClass' => $record->ClassName,
                 'RecordID' => $record->ID,
-            ])
+                ]
+            )
             ->first();
 
         if (!$index) {
@@ -168,38 +182,67 @@ class SearchIndexEntry extends DataObject
     }
 
     /**
-     * @param  string   $query
-     * @param string    $sort
+     * @param string $query
+     * @param string $sort
      * @param string
      *
      * @return DataList
      */
-    public static function search(string $query, string $sort = null)
+    public static function search(string $keywords, string $sort = null)
     {
-        $query = explode(' ', $query);
-        $query = array_map('strtolower', $query);
+        $keywords = Convert::raw2sql(trim($keywords));
 
-        $inst = self::singleton();
-        $filterConfig = $inst->config()->filters;
-        $filters = [];
+        $records = ArrayList::create();
 
-        foreach ($filterConfig as $key) {
-            $filters[$key] = $query;
+        if (empty($keywords) or strlen($keywords) < 4) {
+            return $records;
         }
 
-        $records = SearchIndexEntry::get()
-            ->filterAny($filters)
-            ->sort($sort ?? $inst->default_sort);
+        $inst = self::singleton();
 
-        $recordsCanView = new ArrayList([]);
+        $andProcessor = function ($matches) {
+            return " +" . $matches[2] . " +" . $matches[4] . " ";
+        };
 
-        foreach($records as $record){
+        $notProcessor = function ($matches) {
+            return " -" . $matches[3];
+        };
+
+        $keywords = preg_replace_callback('/()("[^()"]+")( and )("[^"()]+")()/i', $andProcessor, $keywords);
+        $keywords = preg_replace_callback('/(^| )([^() ]+)( and )([^ ()]+)( |$)/i', $andProcessor, $keywords);
+        $keywords = preg_replace_callback('/(^| )(not )("[^"()]+")/i', $notProcessor, $keywords);
+        $keywords = preg_replace_callback('/(^| )(not )([^() ]+)( |$)/i', $notProcessor, $keywords);
+
+        $sql = new SQLSelect();
+        $sql->setDistinct(true);
+        $sql->setFrom('SearchIndexEntry');
+        $sql->addSelect(
+            "(
+                (2 * (MATCH `Title` AGAINST ('{$keywords}' IN BOOLEAN MODE)))
+                +
+                (1 * (MATCH `SearchableText` AGAINST ('{$keywords}' IN BOOLEAN MODE)))
+            )
+            AS Relevance"
+        );
+        $sql->setWhere(
+            "MATCH
+                (`Title`, `SearchableText`)
+            AGAINST ('{$keywords}' IN BOOLEAN MODE)"
+        );
+
+        $sql->setOrderBy("Relevance", "DESC");
+        //$rawSQL = $sql->sql();
+        //echo $rawSQL;
+        $result = $sql->execute();
+
+        foreach ($result as $record) {
+            $record = SearchIndexEntry::create($record);
             if($record->getRecord()->canView()) {
-                $recordsCanView->push($record);
+                $records->add($record);
             }
         }
 
-        return $recordsCanView;
+        return $records;
     }
 
     public function getRecord()
